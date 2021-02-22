@@ -338,3 +338,11 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# エディタが使用する外部ファイル
+*.csv
+*.pmap
+*.png
+*.gif
+*.bmp
+*.jpg
