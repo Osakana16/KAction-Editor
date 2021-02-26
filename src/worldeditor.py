@@ -3,14 +3,17 @@ import tkinter, tkinter.messagebox
 # ワールド読込器
 class Loader:
     def __init__(self, path: str):
-        self.chips = dict()
-        self.elems = list()
+        self.chips = dict() # チップ情報
+        self.elems = list() # マップ全体の構造
 
         # マップの読み込み
         with open(path + '.pmap', mode='r', encoding='utf_16') as f:
             for line in f.readlines():
+                # 1行分追加
                 self.elems.append([])
+                # 新しく追加した行をターゲットに設定。
                 target = self.elems[-1]
+                # ファイル内の文字を追加
                 for c in line:
                     target.append(c)
                 target.pop(-1)
@@ -39,7 +42,7 @@ class Palette(tkinter.Toplevel):
         self.__chips = dict()
         self.__elems = list()
         self.__canvas = tkinter.Canvas(self)
-        self.__canvas.place(x=0, y=0)
+        self.__canvas.grid()
 
     def destroy(self):
         self.withdraw()
