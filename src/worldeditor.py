@@ -38,24 +38,76 @@ class Palette(tkinter.Toplevel):
     def __init__(self, master=None):
         super().__init__(master=master)
         self.title('パレット')
+        self.bind('<ButtonPress-1>', self.__Select)
         self.transient(master)
         self.__chips = dict()
         self.__elems = list()
         self.__canvas = tkinter.Canvas(self)
         self.__canvas.grid()
+        self.__selecting_elem = None
 
     def destroy(self):
         self.withdraw()
 
-    def Load(self, loader: Loader):
-        self.__chips = loader.chips
-        self.__elems = loader.elems
+    def SelectingElem(self):
+        return self.__selecting_elem
 
-        i = 1
-        for key in self.__chips.keys():
+    def Load(self, loader: Loader):
+        chips = loader.chips
+        elems = loader.elems
+        self.__elems = [[]]
+
+        i = 0
+        for key in chips.keys():
             # 最初のセルを無視。
             if key == '要素':
                 continue
 
-            self.__canvas.create_image(i * 60, 60, image=self.__chips[key])
+            self.__canvas.create_image(i * 60 + 60, 60, image=chips[key])
+            self.__elems[i].append(chips[key])
             i += 1
+
+class MapCanvas(tkinter.Canvas):
+    def __init__(self, w, h, frame: tkinter.Frame, palette: Palette):
+        super().__init__(frame, width=w, height=h)
+
+        # スクロールバーの設定
+        self.__scroll_bars = [tkinter.Scrollbar(frame, orient=tkinter.HORIZONTAL, command=self.xview), 
+                              tkinter.Scrollbar(frame, orient=tkinter.VERTICAL, command=self.yview)]
+
+        self.__scroll_bars[0].grid(row=1, column=0, sticky=tkinter.W + tkinter.E)
+        self.__scroll_bars[1].grid(row=0, column=1, sticky=tkinter.S + tkinter.N)
+        self.config(xscrollcommand=self.__scroll_bars[0].set, yscrollcommand=self.__scroll_bars[1].set)
+
+        self.bind('<ButtonPress-1>')
+        self.bind('<Motion>', self.__Draw)
+        self.__elems = list()
+        self.__chips = dict()
+        self.__palette = palette
+
+    # loaderから構造を参照する。
+    def Load(self, loader):
+        self.__elems = loader.elems
+        self.__chips = loader.chips
+
+        mx, my = (0, len(self.__elems))
+
+        for y in range(my):
+            temp = len(self.__elems[y])
+            if temp > mx:
+                mx = temp
+
+        self.config(scrollregion=(0, -60, mx * 120, my * 120))
+
+    def __Draw(self, event: tkinter.Event):
+        if not self.__HasDrawingElems():
+            return
+
+        for y in range(len(self.__elems)):
+            for x in range(len(self.__elems[y])):
+                elem = self.__elems[y][x]
+                if elem != ' ':
+                    self.create_image(x * 120, y * 120, image=self.__chips[elem])
+
+    def __HasDrawingElems(self) -> bool:
+        return len(self.__elems) > 0
