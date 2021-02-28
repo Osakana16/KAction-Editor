@@ -38,7 +38,7 @@ class Program(tkinter.Tk):
         self.filemenu = tkinter.Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label='新規作成')
         self.filemenu.add_command(label='開く', command=self.OpenWorld)
-        self.filemenu.add_command(label='終了', command=self.destroy)
+        self.filemenu.add_command(label='保存', command=self.Save)
         self.menubar.add_cascade(label='ファイル', menu=self.filemenu)
 
         # ツール
@@ -68,6 +68,9 @@ class Program(tkinter.Tk):
         files = glob.glob(folder_name + '/*.pmap')
         for file in files:
             self.world_list.insert(0, file)
+
+    def Save(self):
+        self.canvas.Save(self.world_list.get('active'))
 
     # 開いたマップを読み込む。
     def LoadWorld(self, event):
