@@ -108,6 +108,13 @@ class MapCanvas(tkinter.Canvas):
         self.__width, self.__height = (mx * 120, my * 120)
         self.config(scrollregion=(0, -60, self.__width, self.__height))
 
+    def Save(self, filename: str):
+        with open(filename, 'w') as f:
+            for sen in self.__elems:
+                for ch in sen:
+                    f.write(ch)
+                f.write('\n')
+
     def __PutChip(self, x, y, ch):
         if y < 0 or x < 0:
             return
